@@ -1,0 +1,229 @@
+
+type UntitledJSON @aws_iam @aws_cognito_user_pools @aws_api_key {
+  NewField: String
+}
+
+type Listings @aws_iam @aws_cognito_user_pools @aws_api_key {
+  id: ID!
+  Address: UntitledJSON
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  _version: Int!
+  _deleted: Boolean
+  _lastChangedAt: AWSTimestamp!
+}
+
+input ModelStringInput {
+  ne: String
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+  contains: String
+  notContains: String
+  between: [String]
+  beginsWith: String
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  size: ModelSizeInput
+}
+
+input ModelIntInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelFloatInput {
+  ne: Float
+  eq: Float
+  le: Float
+  lt: Float
+  ge: Float
+  gt: Float
+  between: [Float]
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelBooleanInput {
+  ne: Boolean
+  eq: Boolean
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelIDInput {
+  ne: ID
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  contains: ID
+  notContains: ID
+  between: [ID]
+  beginsWith: ID
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  size: ModelSizeInput
+}
+
+input ModelSubscriptionStringInput {
+  ne: String
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+  contains: String
+  notContains: String
+  between: [String]
+  beginsWith: String
+  in: [String]
+  notIn: [String]
+}
+
+input ModelSubscriptionIntInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+  in: [Int]
+  notIn: [Int]
+}
+
+input ModelSubscriptionFloatInput {
+  ne: Float
+  eq: Float
+  le: Float
+  lt: Float
+  ge: Float
+  gt: Float
+  between: [Float]
+  in: [Float]
+  notIn: [Float]
+}
+
+input ModelSubscriptionBooleanInput {
+  ne: Boolean
+  eq: Boolean
+}
+
+input ModelSubscriptionIDInput {
+  ne: ID
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  contains: ID
+  notContains: ID
+  between: [ID]
+  beginsWith: ID
+  in: [ID]
+  notIn: [ID]
+}
+
+enum ModelAttributeTypes {
+  binary
+  binarySet
+  bool
+  list
+  map
+  number
+  numberSet
+  string
+  stringSet
+  _null
+}
+
+input ModelSizeInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+}
+
+enum ModelSortDirection {
+  ASC
+  DESC
+}
+
+input UntitledJSONInput {
+  NewField: String
+}
+
+type ModelListingsConnection @aws_api_key @aws_iam @aws_cognito_user_pools {
+  items: [Listings]!
+  nextToken: String
+  startedAt: AWSTimestamp
+}
+
+input ModelListingsFilterInput {
+  id: ModelIDInput
+  and: [ModelListingsFilterInput]
+  or: [ModelListingsFilterInput]
+  not: ModelListingsFilterInput
+}
+
+type Query {
+  getListings(id: ID!): Listings @aws_api_key @aws_iam @aws_cognito_user_pools
+  listListings(filter: ModelListingsFilterInput, limit: Int, nextToken: String): ModelListingsConnection @aws_api_key @aws_iam @aws_cognito_user_pools
+  syncListings(filter: ModelListingsFilterInput, limit: Int, nextToken: String, lastSync: AWSTimestamp): ModelListingsConnection @aws_api_key @aws_iam @aws_cognito_user_pools
+}
+
+input ModelListingsConditionInput {
+  and: [ModelListingsConditionInput]
+  or: [ModelListingsConditionInput]
+  not: ModelListingsConditionInput
+}
+
+input CreateListingsInput {
+  id: ID
+  Address: UntitledJSONInput
+  _version: Int
+}
+
+input UpdateListingsInput {
+  id: ID!
+  Address: UntitledJSONInput
+  _version: Int
+}
+
+input DeleteListingsInput {
+  id: ID!
+  _version: Int
+}
+
+type Mutation {
+  createListings(input: CreateListingsInput!, condition: ModelListingsConditionInput): Listings @aws_api_key @aws_iam @aws_cognito_user_pools
+  updateListings(input: UpdateListingsInput!, condition: ModelListingsConditionInput): Listings @aws_api_key @aws_iam @aws_cognito_user_pools
+  deleteListings(input: DeleteListingsInput!, condition: ModelListingsConditionInput): Listings @aws_api_key @aws_iam @aws_cognito_user_pools
+}
+
+input ModelSubscriptionListingsFilterInput {
+  id: ModelSubscriptionIDInput
+  and: [ModelSubscriptionListingsFilterInput]
+  or: [ModelSubscriptionListingsFilterInput]
+}
+
+type Subscription {
+  onCreateListings(filter: ModelSubscriptionListingsFilterInput): Listings @aws_subscribe(mutations: ["createListings"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+  onUpdateListings(filter: ModelSubscriptionListingsFilterInput): Listings @aws_subscribe(mutations: ["updateListings"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+  onDeleteListings(filter: ModelSubscriptionListingsFilterInput): Listings @aws_subscribe(mutations: ["deleteListings"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+}
+
