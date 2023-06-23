@@ -41,7 +41,7 @@ const User_login = () => {
       "/me",
       {
         fields: "name,email",
-        appsecret_proof: process.env.PASS_PHRASE,
+        appsecret_proof: process.env.REACT_APP_PASS_PHRASE,
       },
       (response) => {
         console.log("User info response:", response);
@@ -193,7 +193,7 @@ export default User_login;
 //       "/me",
 //       {
 //         fields: "first_name,last_name,email",
-//         appsecret_proof: process.env.PASS_PHRASE,
+//         appsecret_proof: process.env.REACT_APP_PASS_PHRASE,
 //       },
 //       function (response) {
 //         console.log("User info response:", response);
