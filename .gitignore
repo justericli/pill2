@@ -1,5 +1,3 @@
-.GITIGNORE FILE
-
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
@@ -47,3 +45,8 @@ amplifytools.xcconfig
 #amplify-do-not-edit-end
 
 .env
+node_modules/.cache/default-development/0.pack
+node_modules/.cache/default-development/10.pack
+node_modules/.cache/default-development/47.pack
+node_modules/.cache/default-development/13.pack
+node_modules/.cache/default-development/46.pack
