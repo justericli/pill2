@@ -1,0 +1,12 @@
+{
+  "resourceName": "s3pillistoragef68b2ca8",
+  "bucketName": "pilli-storage-f68b2ca8",
+  "policyUUID": "4a3aa317",
+  "storageAccess": "auth",
+  "guestAccess": [],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ]
+}

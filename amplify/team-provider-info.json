@@ -1,0 +1,26 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-pilli-dev-01743-authRole",
+      "UnauthRoleArn": "arn:aws:iam::687835313149:role/amplify-pilli-dev-01743-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::687835313149:role/amplify-pilli-dev-01743-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-pilli-dev-01743-deployment",
+      "UnauthRoleName": "amplify-pilli-dev-01743-unauthRole",
+      "StackName": "amplify-pilli-dev-01743",
+      "StackId": "arn:aws:cloudformation:us-east-1:687835313149:stack/amplify-pilli-dev-01743/78a239b0-db44-11ed-aedc-0ab9ea6915a5",
+      "AmplifyAppId": "d3pxqh1tsvcqu4"
+    },
+    "categories": {
+      "auth": {
+        "pilli": {}
+      },
+      "function": {
+        "listings": {}
+      },
+      "storage": {
+        "s3pillistoragef68b2ca8": {}
+      }
+    }
+  }
+}
