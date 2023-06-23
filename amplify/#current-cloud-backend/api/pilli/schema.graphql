@@ -1,8 +1,0 @@
-type UntitledJSON {
-  NewField: String
-}
-
-type Listings @model @auth(rules: [{allow: public}, {allow: private}]) {
-  id: ID!
-  Address: UntitledJSON
-}
