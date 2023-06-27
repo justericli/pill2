@@ -8,7 +8,28 @@ import {
   CognitoUserPool,
   AuthenticationDetails,
   CognitoUser,
+  CognitoIdentityCredentials,
+  CognitoUserAttribute,
 } from "amazon-cognito-identity-js";
+import Amplify from "aws-amplify";
+
+Amplify.configure({
+  Auth: {
+    userPoolId: "us-east-1_zBOyMr7hs",
+    userPoolWebClientId: "474p9bsq38phlbsk6rq0rak8d1",
+    identityPoolId: "us-east-1:2db79836-c39c-426f-9aa5-1ed010e49e3c",
+    region: "us-east-1",
+    mandatorySignIn: true,
+    oauth: {
+      domain: "joinwherologin.auth.us-east-1.amazoncognito.com",
+      scope: ["email", "profile", "openid"],
+      redirectSignIn: "http://localhost:3000",
+      redirectSignOut: "http://localhost:3000",
+      responseType: "token",
+    },
+    federationTarget: "COGNITO_USER_POOLS",
+  },
+});
 
 // Replace these with your actual UserPoolId and ClientId
 const UserPoolId = "us-east-1_zBOyMr7hs";
@@ -43,13 +64,15 @@ const User_login = () => {
     FB.api(
       "/me",
       {
-        fields: "name,email",
+        fields: "id,name,email",
         appsecret_proof: process.env.REACT_APP_PASS_PHRASE,
       },
       (response) => {
         console.log("User info response:", response);
 
         const { email, name } = response;
+        setEmail(email);
+        setGivenName(name);
 
         Auth.updateUserAttributes(authenticate().user, {
           email,
@@ -148,7 +171,7 @@ const User_login = () => {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <label htmlFor="email">CAN YOU SEE ME Email</label>
+        <label htmlFor="email">Email</label>
         <input
           value={email}
           onChange={(event) => setEmail(event.target.value)}
