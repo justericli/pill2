@@ -23,8 +23,8 @@ Amplify.configure({
     oauth: {
       domain: "joinwherologin.auth.us-east-1.amazoncognito.com",
       scope: ["email", "profile", "openid"],
-      redirectSignIn: "http://joinwhero.com/User_dashboard",
-      redirectSignOut: "http://joinwhero.com/User_login",
+      redirectSignIn: "http://www.joinwhero.com/User_dashboard",
+      redirectSignOut: "http://www.joinwhero.com/User_login",
       responseType: "token",
     },
     federationTarget: "COGNITO_USER_POOLS",
