@@ -1,6 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import { CognitoUser, AuthenticationDetails } from "amazon-cognito-identity-js";
-import Pool from "../User_Userpool.jsx";
+import { Auth } from "aws-amplify";
 
 const AccountContext = createContext();
 
@@ -14,57 +13,29 @@ const User_Account = (props) => {
   }, [authenticated]);
 
   const getSession = async () => {
-    return await new Promise((resolve, reject) => {
-      const user = Pool.getCurrentUser();
-      if (user) {
-        user.getSession((err, session) => {
-          if (err) {
-            reject();
-          } else {
-            // Set the username state here
-            setUserName(session.getIdToken().payload["cognito:username"]);
-            resolve(session);
-          }
-        });
-      } else {
-        reject();
-      }
-    });
+    try {
+      const user = await Auth.currentAuthenticatedUser();
+      setUserName(user.username);
+      return user.signInUserSession;
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const authenticate = async (Username, Password) => {
-    return await new Promise((resolve, reject) => {
-      const user = new CognitoUser({
-        Username,
-        Pool: Pool,
-      });
-
-      const authDetails = new AuthenticationDetails({
-        Username,
-        Password,
-      });
-
-      user.authenticateUser(authDetails, {
-        onSuccess: (data) => {
-          console.log("onSuccess: ", data);
-          resolve(data);
-        },
-        onFailure: (err) => {
-          console.error("onFailure: ", err);
-          reject(err);
-        },
-        newPasswordRequired: (data) => {
-          console.log("newPasswordRequired: ", data);
-          resolve(data);
-        },
-      });
-    });
+    try {
+      const user = await Auth.signIn(Username, Password);
+      return user;
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const logout = () => {
-    const user = Pool.getCurrentUser();
-    if (user) {
-      user.signOut();
+    try {
+      Auth.signOut();
+    } catch (err) {
+      console.error(err);
     }
   };
 

@@ -23,8 +23,8 @@ Amplify.configure({
     oauth: {
       domain: "joinwherologin.auth.us-east-1.amazoncognito.com",
       scope: ["email", "profile", "openid"],
-      redirectSignIn: "http://localhost:3000",
-      redirectSignOut: "http://localhost:3000",
+      redirectSignIn: "http://joinwhero.com/User_dashboard",
+      redirectSignOut: "http://joinwhero.com",
       responseType: "token",
     },
     federationTarget: "COGNITO_USER_POOLS",
@@ -64,22 +64,31 @@ const User_login = () => {
     FB.api(
       "/me",
       {
-        fields: "id,name,email",
+        fields: "id,first_name,last_name,email",
         appsecret_proof: process.env.REACT_APP_PASS_PHRASE,
       },
-      (response) => {
-        console.log("User info response:", response);
+      async (response) => {
+        try {
+          console.log("User info response:", response);
 
-        const { email, name } = response;
-        setEmail(email);
-        setGivenName(name);
+          const { email, first_name, last_name } = response;
+          setEmail(email);
+          setGivenName(first_name);
 
-        Auth.updateUserAttributes(authenticate().user, {
-          email,
-          name,
-        });
+          const currentUser = await Auth.currentAuthenticatedUser();
+          Auth.updateUserAttributes(currentUser, {
+            email,
+            given_name: first_name,
+            family_name: last_name,
+            gender: "male", // Hard-code the 'gender' attribute to 'male'
+          });
 
-        navigate("/User_dashboard");
+          navigate("/User_dashboard");
+        } catch (error) {
+          console.error("Failed to get user info or update user attributes: ");
+          document.getElementById("status").innerHTML =
+            "An unexpected error occurred. Please try again.";
+        }
       }
     );
   };
