@@ -1,6 +1,9 @@
 import React, { useState } from "react";
-import Userpool from "../User_Userpool.jsx";
-import axios from "axios";
+import {
+  Auth,
+  CognitoUserAttribute,
+  CognitoUserPool,
+} from "amazon-cognito-identity-js";
 
 const User_signup = () => {
   const [email, setEmail] = useState("");
@@ -10,26 +13,49 @@ const User_signup = () => {
   const [gender, setGender] = useState("");
   const [otherGender, setOtherGender] = useState("");
 
+  const UserPoolId = "us-east-1_zBOyMr7hs";
+  const ClientId = "474p9bsq38phlbsk6rq0rak8d1";
+
+  const userPool = new CognitoUserPool({
+    UserPoolId,
+    ClientId,
+  });
+
   const onSubmit = async (event) => {
     event.preventDefault();
 
-    const userData = {
-      email,
-      password,
-      givenName,
-      familyName,
-      gender,
-      otherGender,
-    };
-
     try {
-      const response = await axios.post(
-        "http://localhost:4000/getFacebookData",
-        userData
-      );
-      // process the response here, you may want to navigate the user to a different page or update some state.
+      const attributes = [
+        {
+          Name: "email",
+          Value: email,
+        },
+        {
+          Name: "given_name",
+          Value: givenName,
+        },
+        {
+          Name: "family_name",
+          Value: familyName,
+        },
+        {
+          Name: "gender",
+          Value: gender === "Other" ? otherGender : gender,
+        },
+      ];
+
+      userPool.signUp(email, password, attributes, null, (err, result) => {
+        if (err) {
+          console.error("Error signing up:", err);
+          // Handle the error, e.g., display an error message to the user
+        } else {
+          console.log("Successfully signed up:", result);
+          // Handle the successful signup, e.g., redirect to a confirmation page
+        }
+      });
     } catch (error) {
-      console.error(error);
+      console.error("Error signing up:", error);
+      // Handle the error, e.g., display an error message to the user
     }
   };
 
@@ -38,30 +64,37 @@ const User_signup = () => {
       <form onSubmit={onSubmit}>
         <label htmlFor="email">Email</label>
         <input
+          type="email"
+          id="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
         />
 
         <label htmlFor="password">Password</label>
         <input
+          type="password"
+          id="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
         />
 
         <label htmlFor="givenName">First Name</label>
         <input
+          id="givenName"
           value={givenName}
           onChange={(event) => setGivenName(event.target.value)}
         />
 
         <label htmlFor="familyName">Last Name</label>
         <input
+          id="familyName"
           value={familyName}
           onChange={(event) => setFamilyName(event.target.value)}
         />
 
         <label htmlFor="gender">Gender</label>
         <select
+          id="gender"
           value={gender}
           onChange={(event) => setGender(event.target.value)}
         >
@@ -75,6 +108,7 @@ const User_signup = () => {
           <div>
             <label htmlFor="otherGender">Please specify</label>
             <input
+              id="otherGender"
               value={otherGender}
               onChange={(event) => setOtherGender(event.target.value)}
             />

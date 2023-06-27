@@ -24,7 +24,7 @@ Amplify.configure({
       domain: "joinwherologin.auth.us-east-1.amazoncognito.com",
       scope: ["email", "profile", "openid"],
       redirectSignIn: "http://joinwhero.com/User_dashboard",
-      redirectSignOut: "http://joinwhero.com",
+      redirectSignOut: "http://joinwhero.com/User_login",
       responseType: "token",
     },
     federationTarget: "COGNITO_USER_POOLS",
@@ -55,7 +55,7 @@ const User_login = () => {
 
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
-  const { authenticate, setAuthenticated } = useContext(AccountContext);
+  const { authenticate, setAuthenticated, logout } = useContext(AccountContext);
   const [password, setPassword] = useState("");
   const [givenName, setGivenName] = useState("");
 
@@ -169,6 +169,8 @@ const User_login = () => {
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: (result) => {
         console.log("User logged in");
+        setAuthenticated(true); // Set authenticated to true when user logs in
+        authenticate(email, password);
         navigate("/User_dashboard");
       },
       onFailure: (err) => {
