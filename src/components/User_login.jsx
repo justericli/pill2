@@ -65,7 +65,7 @@ const User_login = () => {
       "/me",
       {
         fields: "id,first_name,last_name,email",
-        appsecret_proof: process.env.REACT_APP_PASS_PHRASE,
+        appsecret_proof: "Karatekid22@",
       },
       async (response) => {
         try {
@@ -103,7 +103,7 @@ const User_login = () => {
       if (response.name) {
         console.log("Successful login for: " + response.name);
         document.getElementById("status").innerHTML =
-          "Thanks for logging in, " + response.name + "!";
+          "Thanks fo r logging in, " + response.name + "!";
       } else {
         console.log("Name field not found in the response.");
         document.getElementById("status").innerHTML =
