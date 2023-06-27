@@ -99,9 +99,16 @@ const User_login = () => {
   function testAPI() {
     console.log("Welcome!  Fetching your information.... ");
     FB.api("/me", { fields: "name" }, function (response) {
-      console.log("Successful login for: " + response.name);
-      document.getElementById("status").innerHTML =
-        "Thanks for logging in, " + response.name + "!";
+      console.log("Response from Facebook API: ", response);
+      if (response.name) {
+        console.log("Successful login for: " + response.name);
+        document.getElementById("status").innerHTML =
+          "Thanks for logging in, " + response.name + "!";
+      } else {
+        console.log("Name field not found in the response.");
+        document.getElementById("status").innerHTML =
+          "Logged in, but could not get the user's name.";
+      }
     });
   }
 
