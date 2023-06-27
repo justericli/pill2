@@ -75,17 +75,23 @@ const User_login = () => {
           setEmail(email);
           setGivenName(first_name);
 
-          const currentUser = await Auth.currentAuthenticatedUser();
-          Auth.updateUserAttributes(currentUser, {
-            email,
-            given_name: first_name,
-            family_name: last_name,
-            gender: "male", // Hard-code the 'gender' attribute to 'male'
-          });
+          const session = await Auth.currentSession();
+          if (session) {
+            const currentUser = await Auth.currentAuthenticatedUser();
+            Auth.updateUserAttributes(currentUser, {
+              email,
+              given_name: first_name,
+              family_name: last_name,
+              gender: "male", // Hard-code the 'gender' attribute to 'male'
+            });
+          }
 
           navigate("/User_dashboard");
         } catch (error) {
-          console.error("Failed to get user info or update user attributes: ");
+          console.error(
+            "Failed to get user info or update user attributes: ",
+            error
+          );
           document.getElementById("status").innerHTML =
             "An unexpected error occurred. Please try again.";
         }
