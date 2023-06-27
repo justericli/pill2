@@ -11,7 +11,7 @@ import {
   CognitoIdentityCredentials,
   CognitoUserAttribute,
 } from "amazon-cognito-identity-js";
-import Amplify from "aws-amplify";
+import { Amplify } from "aws-amplify";
 
 Amplify.configure({
   Auth: {
