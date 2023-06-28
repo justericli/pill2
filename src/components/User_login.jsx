@@ -1,13 +1,22 @@
 /* global FB */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Auth } from "aws-amplify";
-
+import { AccountContext } from "./User_Account.jsx";
+import {
+  CognitoUserPool,
+  AuthenticationDetails,
+  CognitoUser,
+  CognitoIdentityCredentials,
+  CognitoUserAttribute,
+} from "amazon-cognito-identity-js";
 import { Amplify } from "aws-amplify";
 
 Amplify.configure({
   Auth: {
+    userPoolId: "us-east-1_zBOyMr7hs",
+    userPoolWebClientId: "474p9bsq38phlbsk6rq0rak8d1",
     identityPoolId: "us-east-1:2db79836-c39c-426f-9aa5-1ed010e49e3c",
     region: "us-east-1",
     mandatorySignIn: true,
@@ -21,6 +30,16 @@ Amplify.configure({
     federationTarget: "COGNITO_USER_POOLS",
   },
 });
+
+// Replace these with your actual UserPoolId and ClientId
+const UserPoolId = "us-east-1_zBOyMr7hs";
+const ClientId = "474p9bsq38phlbsk6rq0rak8d1";
+
+const poolData = {
+  UserPoolId,
+  ClientId,
+};
+const userPool = new CognitoUserPool(poolData);
 
 const User_login = () => {
   let fbToken = "";
@@ -39,8 +58,10 @@ const User_login = () => {
     }
   };
 
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const navigate = useNavigate();
+  const { authenticate, setAuthenticated, logout } = useContext(AccountContext);
+  const [password, setPassword] = useState("");
   const [givenName, setGivenName] = useState("");
 
   const getUserInfo = () => {
@@ -114,9 +135,9 @@ const User_login = () => {
         version: "v15.0",
       });
 
-      // FB.getLoginStatus((response) => {
-      //   statusChangeCallback(response);
-      // });
+      FB.getLoginStatus((response) => {
+        statusChangeCallback(response);
+      });
 
       // Add a listener to the auth.statusChange event
       FB.Event.subscribe("auth.statusChange", statusChangeCallback);
@@ -150,9 +171,7 @@ const User_login = () => {
           console.log("Welcome!  Fetching your information.... ");
           FB.api("/me", function (response) {
             console.log("Good to see you, " + response.name + ".");
-            FB.getLoginStatus((response) => {
-              statusChangeCallback(response);
-            });
+            statusChangeCallback(response);
             testAPI();
           });
         } else {
@@ -167,8 +186,49 @@ const User_login = () => {
     );
   };
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const authenticationDetails = new AuthenticationDetails({
+      Username: email,
+      Password: password,
+    });
+
+    const userData = {
+      Username: email,
+      Pool: userPool,
+    };
+
+    const cognitoUser = new CognitoUser(userData);
+
+    cognitoUser.authenticateUser(authenticationDetails, {
+      onSuccess: (result) => {
+        console.log("User logged in");
+        setAuthenticated(true); // Set authenticated to true when user logs in
+        authenticate(email, password);
+        navigate("/User_dashboard");
+      },
+      onFailure: (err) => {
+        console.error("Error logging in:", err);
+      },
+    });
+  };
+
   return (
     <div>
+      <form onSubmit={handleSubmit}>
+        <label htmlFor="email">Email</label>
+        <input
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+        ></input>
+        <label htmlFor="password">Password</label>
+        <input
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+        ></input>
+        <button type="submit">Login</button>
+      </form>
       <div
         className="fb-login-button"
         data-width=""
