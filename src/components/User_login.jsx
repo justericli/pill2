@@ -114,9 +114,9 @@ const User_login = () => {
         version: "v15.0",
       });
 
-      FB.getLoginStatus((response) => {
-        statusChangeCallback(response);
-      });
+      // FB.getLoginStatus((response) => {
+      //   statusChangeCallback(response);
+      // });
 
       // Add a listener to the auth.statusChange event
       FB.Event.subscribe("auth.statusChange", statusChangeCallback);
@@ -150,7 +150,9 @@ const User_login = () => {
           console.log("Welcome!  Fetching your information.... ");
           FB.api("/me", function (response) {
             console.log("Good to see you, " + response.name + ".");
-            statusChangeCallback(response);
+            FB.getLoginStatus((response) => {
+              statusChangeCallback(response);
+            });
             testAPI();
           });
         } else {
