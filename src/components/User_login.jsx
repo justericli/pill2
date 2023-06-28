@@ -8,8 +8,6 @@ import {
   CognitoUserPool,
   AuthenticationDetails,
   CognitoUser,
-  CognitoIdentityCredentials,
-  CognitoUserAttribute,
 } from "amazon-cognito-identity-js";
 import { Amplify } from "aws-amplify";
 
@@ -31,19 +29,10 @@ Amplify.configure({
   },
 });
 
-// Replace these with your actual UserPoolId and ClientId
-const UserPoolId = "us-east-1_zBOyMr7hs";
-const ClientId = "474p9bsq38phlbsk6rq0rak8d1";
-
-const poolData = {
-  UserPoolId,
-  ClientId,
-};
-const userPool = new CognitoUserPool(poolData);
-
 const User_login = () => {
   let fbToken = "";
   let fbExpiresAt = "";
+  let fbLoginClicked = false; // Flag to track if Facebook login button was clicked
 
   const statusChangeCallback = (response) => {
     console.log("statusChangeCallback");
@@ -99,8 +88,11 @@ const User_login = () => {
             "Failed to get user info or update user attributes: ",
             error
           );
-          document.getElementById("status").innerHTML =
-            "An unexpected error occurred. Please try again.";
+          if (fbLoginClicked) {
+            // Show error message only if Facebook login button was clicked
+            document.getElementById("status").innerHTML =
+              "An unexpected error occurred. Please try again.";
+          }
         }
       }
     );
@@ -116,7 +108,7 @@ const User_login = () => {
       if (response.name) {
         console.log("Successful login for: " + response.name);
         document.getElementById("status").innerHTML =
-          "Thanks fo r logging in, " + response.name + "!";
+          "Thanks for logging in, " + response.name + "!";
       } else {
         console.log("Name field not found in the response.");
         document.getElementById("status").innerHTML =
@@ -165,6 +157,7 @@ const User_login = () => {
   }, []);
 
   const handleFBLogin = () => {
+    fbLoginClicked = true; // Set the flag to true when Facebook login button is clicked
     FB.login(
       (response) => {
         if (response.authResponse) {
@@ -194,12 +187,10 @@ const User_login = () => {
       Password: password,
     });
 
-    const userData = {
+    const cognitoUser = new CognitoUser({
       Username: email,
       Pool: userPool,
-    };
-
-    const cognitoUser = new CognitoUser(userData);
+    });
 
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: (result) => {
