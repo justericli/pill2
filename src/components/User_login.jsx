@@ -53,6 +53,15 @@ const User_login = () => {
   const [password, setPassword] = useState("");
   const [givenName, setGivenName] = useState("");
 
+  const UserPoolId = "us-east-1_zBOyMr7hs";
+  const ClientId = "474p9bsq38phlbsk6rq0rak8d1";
+
+  const poolData = {
+    UserPoolId,
+    ClientId,
+  };
+  const userPool = new CognitoUserPool(poolData); // Define userPool here
+
   const getUserInfo = () => {
     console.log("Getting user info");
     FB.api(
