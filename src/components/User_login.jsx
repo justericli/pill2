@@ -75,16 +75,22 @@ const User_login = () => {
           setEmail(email);
           setGivenName(first_name);
 
-          const session = await Auth.currentSession();
-          if (session) {
-            const currentUser = await Auth.currentAuthenticatedUser();
-            Auth.updateUserAttributes(currentUser, {
-              email,
-              given_name: first_name,
-              family_name: last_name,
-              gender: "male", // Hard-code the 'gender' attribute to 'male'
-            });
-          }
+          await Auth.federatedSignIn(
+            "facebook",
+            {
+              token: response.authResponse.accessToken,
+              expires_at: response.authResponse.expiresIn,
+            },
+            { email: email, name: first_name }
+          );
+
+          const currentUser = await Auth.currentAuthenticatedUser();
+          Auth.updateUserAttributes(currentUser, {
+            email,
+            given_name: first_name,
+            family_name: last_name,
+            gender: "male", // Hard-code the 'gender' attribute to 'male'
+          });
 
           navigate("/User_dashboard");
         } catch (error) {
