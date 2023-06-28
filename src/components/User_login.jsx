@@ -42,16 +42,21 @@ const poolData = {
 const userPool = new CognitoUserPool(poolData);
 
 const User_login = () => {
-  async function statusChangeCallback(response) {
+  let fbToken = "";
+  let fbExpiresAt = "";
+
+  const statusChangeCallback = (response) => {
     console.log("statusChangeCallback");
     console.log(response);
     if (response.status === "connected") {
+      fbToken = response.authResponse.accessToken; // Save the token
+      fbExpiresAt = response.authResponse.expiresIn; // Save the expiration time
       getUserInfo();
       testAPI();
     } else {
       document.getElementById("status").innerHTML = "Please log into this app.";
     }
-  }
+  };
 
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
@@ -70,17 +75,13 @@ const User_login = () => {
       async (response) => {
         try {
           console.log("User info response:", response);
-
           const { email, first_name, last_name } = response;
           setEmail(email);
           setGivenName(first_name);
 
           await Auth.federatedSignIn(
             "facebook",
-            {
-              token: response.authResponse.accessToken,
-              expires_at: response.authResponse.expiresIn,
-            },
+            { token: fbToken, expires_at: fbExpiresAt }, // Use saved token and expiration time
             { email: email, name: first_name }
           );
 
@@ -164,10 +165,25 @@ const User_login = () => {
   }, []);
 
   const handleFBLogin = () => {
-    FB.login((response) => {
-      statusChangeCallback(response);
-      testAPI();
-    });
+    FB.login(
+      (response) => {
+        if (response.authResponse) {
+          console.log("Welcome!  Fetching your information.... ");
+          FB.api("/me", function (response) {
+            console.log("Good to see you, " + response.name + ".");
+            statusChangeCallback(response);
+            testAPI();
+          });
+        } else {
+          console.log("User cancelled login or did not fully authorize.");
+        }
+      },
+      {
+        scope: "public_profile,email",
+        return_scopes: true,
+        auth_type: "rerequest",
+      }
+    );
   };
 
   const handleSubmit = async (event) => {
