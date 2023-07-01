@@ -39,9 +39,11 @@ const User_login = () => {
     console.log(response);
     if (response.status === "connected") {
       fbToken = response.authResponse.accessToken; // Save the token
-      fbExpiresAt = response.authResponse.expiresIn; // Save the expiration time
+      fbExpiresAt =
+        new Date().getTime() + response.authResponse.expiresIn * 1000; // Convert to timestamp
       getUserInfo();
       testAPI();
+      refreshAuthToken(); // Refresh the token in AWS Cognito session
     } else {
       document.getElementById("status").innerHTML = "Please log into this app.";
     }
@@ -125,6 +127,26 @@ const User_login = () => {
       }
     });
   }
+
+  const refreshAuthToken = () => {
+    setInterval(() => {
+      const tokenExpiresAt = localStorage.getItem("fbTokenExpiresAt");
+      if (new Date().getTime() > tokenExpiresAt) {
+        FB.getLoginStatus((response) => {
+          if (response.status === "connected") {
+            fbToken = response.authResponse.accessToken;
+            fbExpiresAt =
+              new Date().getTime() + response.authResponse.expiresIn * 1000;
+            localStorage.setItem("fbTokenExpiresAt", fbExpiresAt);
+            Auth.federatedSignIn("facebook", {
+              token: fbToken,
+              expires_at: fbExpiresAt,
+            });
+          }
+        });
+      }
+    }, 60000); // check every minute
+  };
 
   useEffect(() => {
     // This function initializes our FB library
@@ -245,7 +267,6 @@ const User_login = () => {
 };
 
 export default User_login;
-
 //
 //
 //
