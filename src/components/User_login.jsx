@@ -1,4 +1,4 @@
-//* global FB */
+/* global FB */
 
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
@@ -245,6 +245,23 @@ const User_login = () => {
     });
   };
 
+  useEffect(() => {
+    // Dynamically append the Facebook SDK script tag
+    const script = document.createElement("script");
+    script.async = true;
+    script.defer = true;
+    script.crossOrigin = "anonymous";
+    script.src =
+      "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v15.0&appId=YOUR_APP_ID&autoLogAppEvents=1";
+    script.nonce = "YOUR_NONCE_VALUE";
+    document.body.appendChild(script);
+
+    return () => {
+      // Remove the Facebook SDK script tag when component unmounts
+      document.body.removeChild(script);
+    };
+  }, []);
+
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -276,6 +293,7 @@ const User_login = () => {
 };
 
 export default User_login;
+
 //
 //
 //
