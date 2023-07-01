@@ -24,7 +24,7 @@ const User_dashboard = () => {
   // Logout function
   async function handleLogout() {
     // Clear the user's session
-    await Auth.signOut();
+    await Auth.signOut({ global: true });
 
     if (window.FB) {
       window.FB.logout();

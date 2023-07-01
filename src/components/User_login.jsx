@@ -3,13 +3,13 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Auth } from "aws-amplify";
-import { AccountContext } from "./User_Account.jsx";
 import {
   CognitoUserPool,
   AuthenticationDetails,
   CognitoUser,
 } from "amazon-cognito-identity-js";
 import { Amplify } from "aws-amplify";
+import { AccountContext } from "./User_Account.jsx";
 
 Amplify.configure({
   Auth: {
@@ -21,8 +21,8 @@ Amplify.configure({
     oauth: {
       domain: "joinwherologin.auth.us-east-1.amazoncognito.com",
       scope: ["email", "profile", "openid"],
-      redirectSignIn: "http://www.joinwhero.com/User_dashboard",
-      redirectSignOut: "http://www.joinwhero.com/User_login",
+      redirectSignIn: "https://www.joinwhero.com/User_dashboard",
+      redirectSignOut: "https://www.joinwhero.com/User_login",
       responseType: "token",
     },
     federationTarget: "COGNITO_USER_POOLS",
@@ -245,3 +245,99 @@ const User_login = () => {
 };
 
 export default User_login;
+
+//
+//
+//
+//
+
+//
+//
+
+//
+
+//
+
+//
+
+//
+//import React, { useEffect, useState } from "react";
+// import { Amplify, Auth, Hub } from "aws-amplify";
+// import { CognitoHostedUIIdentityProvider } from "@aws-amplify/auth";
+// import awsConfig from "./aws-exports";
+
+// const updatedAwsConfig = {
+//   ...awsConfig,
+//   oauth: {
+//     ...awsConfig.oauth,
+//     domain: "joinwherologin.auth.us-east-1.amazoncognito.com",
+//     scope: ["email", "profile", "openid"],
+//     redirectSignIn: "http://www.joinwhero.com/User_dashboard",
+//     redirectSignOut: "http://www.joinwhero.com/User_login",
+//     responseType: "token",
+//     identityPoolId: "us-east-1:2db79836-c39c-426f-9aa5-1ed010e49e3c",
+//     region: "us-east-1",
+//     userPoolId: "us-east-1_zBOyMr7hs",
+//     userPoolWebClientId: "474p9bsq38phlbsk6rq0rak8d1",
+//   },
+// };
+
+// Amplify.configure(updatedAwsConfig);
+
+// function UserLogin() {
+//   const [user, setUser] = useState(null);
+
+//   useEffect(() => {
+//     const authListener = ({ payload: { event, data } }) => {
+//       switch (event) {
+//         case "signIn":
+//         case "cognitoHostedUI":
+//           getUser().then((userData) => setUser(userData));
+//           break;
+//         case "signOut":
+//           setUser(null);
+//           break;
+//         case "signIn_failure":
+//         case "cognitoHostedUI_failure":
+//           console.log("Sign in failure", data);
+//           break;
+//         default:
+//           break;
+//       }
+//     };
+
+//     Hub.listen("auth", authListener);
+
+//     Auth.currentAuthenticatedUser()
+//       .then((currentUser) => setUser(currentUser))
+//       .catch(() => console.log("Not signed in"));
+
+//     return () => {
+//       Hub.remove("auth", authListener);
+//     };
+//   }, []);
+
+//   const getUser = async () => {
+//     const currentUser = await Auth.currentAuthenticatedUser();
+//     return currentUser;
+//   };
+
+//   return (
+//     <div className="App">
+//       <button onClick={() => Auth.federatedSignIn()}>Open Hosted UI</button>
+//       <button
+//         onClick={() =>
+//           Auth.federatedSignIn({
+//             provider: CognitoHostedUIIdentityProvider.Facebook,
+//           })
+//         }
+//       >
+//         Open Facebook
+//       </button>
+//       <button onClick={() => Auth.signOut()}>Sign Out</button>
+//       <div>{user && user.getUsername()}</div>
+//     </div>
+//   );
+// }
+
+// export default UserLogin;
