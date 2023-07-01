@@ -1,4 +1,4 @@
-/* global FB */
+//* global FB */
 
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,7 @@ import {
   CognitoUser,
 } from "amazon-cognito-identity-js";
 import { Amplify } from "aws-amplify";
+import jsSHA from "jssha";
 
 Amplify.configure({
   Auth: {
@@ -84,7 +85,7 @@ const User_login = () => {
 
           await Auth.federatedSignIn(
             "facebook",
-            { token: fbToken, expires_at: fbExpiresAt }, // Use saved token and expiration time
+            { token: fbToken, expires_at: fbExpiresAt },
             { email: email, name: first_name }
           );
 
@@ -93,7 +94,7 @@ const User_login = () => {
             email,
             given_name: first_name,
             family_name: last_name,
-            gender: "male", // Hard-code the 'gender' attribute to 'male'
+            gender: "male",
           });
 
           navigate("/User_dashboard");
@@ -103,7 +104,6 @@ const User_login = () => {
             error
           );
           if (fbLoginClicked) {
-            // Show error message only if Facebook login button was clicked
             document.getElementById("status").innerHTML =
               "An unexpected error occurred. Please try again.";
           }
@@ -113,18 +113,19 @@ const User_login = () => {
   };
 
   const generateAppSecretProof = (accessToken, appSecret) => {
-    const hmac = crypto.createHmac("sha256", appSecret);
-    hmac.update(accessToken);
-    return hmac.digest("hex");
+    const shaObj = new jsSHA("SHA-256", "TEXT");
+    shaObj.setHMACKey(appSecret, "TEXT");
+    shaObj.update(accessToken);
+    return shaObj.getHMAC("HEX");
   };
 
   window.statusChangeCallback = statusChangeCallback;
   window.getUserInfo = getUserInfo;
 
   function testAPI() {
-    console.log("Welcome!  Fetching your information.... ");
+    console.log("Welcome! Fetching your information...");
     FB.api("/me", { fields: "name" }, function (response) {
-      console.log("Response from Facebook API: ", response);
+      console.log("Response from Facebook API:", response);
       if (response.name) {
         console.log("Successful login for: " + response.name);
         document.getElementById("status").innerHTML =
@@ -162,7 +163,6 @@ const User_login = () => {
   };
 
   useEffect(() => {
-    // This function initializes our FB library
     const initializeFacebookLogin = () => {
       FB.init({
         appId: "730655258288890",
@@ -175,17 +175,13 @@ const User_login = () => {
         statusChangeCallback(response);
       });
 
-      // Add a listener to the auth.statusChange event
       FB.Event.subscribe("auth.statusChange", statusChangeCallback);
 
-      // Add a listener to the auth.logout event
       FB.Event.subscribe("auth.logout", () => {
-        // Clear the state
         setGivenName("");
       });
     };
 
-    // This event listener is triggered when the FB SDK has loaded
     window.fbAsyncInit = initializeFacebookLogin;
 
     if (window.FB) {
@@ -201,11 +197,11 @@ const User_login = () => {
   }, []);
 
   const handleFBLogin = () => {
-    fbLoginClicked = true; // Set the flag to true when Facebook login button is clicked
+    fbLoginClicked = true;
     FB.login(
       (response) => {
         if (response.authResponse) {
-          console.log("Welcome!  Fetching your information.... ");
+          console.log("Welcome! Fetching your information...");
           FB.api("/me", function (response) {
             console.log("Good to see you, " + response.name + ".");
             statusChangeCallback(response);
@@ -239,7 +235,7 @@ const User_login = () => {
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: (result) => {
         console.log("User logged in");
-        setAuthenticated(true); // Set authenticated to true when user logs in
+        setAuthenticated(true);
         authenticate(email, password);
         navigate("/User_dashboard");
       },
