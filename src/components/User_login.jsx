@@ -12,8 +12,21 @@ import {
 import { Amplify } from "aws-amplify";
 
 Amplify.configure({
-  // Amplify configuration
-  // ...
+  Auth: {
+    userPoolId: "us-east-1_zBOyMr7hs",
+    userPoolWebClientId: "474p9bsq38phlbsk6rq0rak8d1",
+    identityPoolId: "us-east-1:2db79836-c39c-426f-9aa5-1ed010e49e3c",
+    region: "us-east-1",
+    mandatorySignIn: true,
+    oauth: {
+      domain: "joinwherologin.auth.us-east-1.amazoncognito.com",
+      scope: ["email", "profile", "openid"],
+      redirectSignIn: "http://www.joinwhero.com/User_dashboard",
+      redirectSignOut: "http://www.joinwhero.com/User_login",
+      responseType: "token",
+    },
+    federationTarget: "COGNITO_USER_POOLS",
+  },
 });
 
 const User_login = () => {
