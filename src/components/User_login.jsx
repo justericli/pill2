@@ -70,7 +70,10 @@ const User_login = () => {
       "/me",
       {
         fields: "id,first_name,last_name,email",
-        appsecret_proof: "Karatekid22@",
+        appsecret_proof: generateAppSecretProof(
+          fbToken,
+          "33622b51827d1b461df385fbf0b1818c"
+        ),
       },
       async (response) => {
         try {
@@ -109,6 +112,12 @@ const User_login = () => {
     );
   };
 
+  const generateAppSecretProof = (accessToken, appSecret) => {
+    const hmac = crypto.createHmac("sha256", appSecret);
+    hmac.update(accessToken);
+    return hmac.digest("hex");
+  };
+
   window.statusChangeCallback = statusChangeCallback;
   window.getUserInfo = getUserInfo;
 
@@ -129,21 +138,25 @@ const User_login = () => {
   }
 
   const refreshAuthToken = () => {
-    setInterval(() => {
+    setInterval(async () => {
       const tokenExpiresAt = localStorage.getItem("fbTokenExpiresAt");
       if (new Date().getTime() > tokenExpiresAt) {
-        FB.getLoginStatus((response) => {
-          if (response.status === "connected") {
-            fbToken = response.authResponse.accessToken;
-            fbExpiresAt =
-              new Date().getTime() + response.authResponse.expiresIn * 1000;
+        try {
+          const { authResponse } = await new Promise((resolve, reject) => {
+            FB.getLoginStatus(resolve);
+          });
+          if (authResponse && authResponse.accessToken) {
+            fbToken = authResponse.accessToken;
+            fbExpiresAt = new Date().getTime() + authResponse.expiresIn * 1000;
             localStorage.setItem("fbTokenExpiresAt", fbExpiresAt);
-            Auth.federatedSignIn("facebook", {
+            await Auth.federatedSignIn("facebook", {
               token: fbToken,
               expires_at: fbExpiresAt,
             });
           }
-        });
+        } catch (error) {
+          console.error("Failed to refresh the token:", error);
+        }
       }
     }, 60000); // check every minute
   };
@@ -267,7 +280,6 @@ const User_login = () => {
 };
 
 export default User_login;
-//
 //
 //
 //
