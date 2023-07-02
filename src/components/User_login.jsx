@@ -158,6 +158,7 @@ const User_login = () => {
               new Date().getTime() + authResponse.expiresIn * 1000;
             setFbToken(newToken);
             setFbExpiresAt(newExpiresAt);
+            localStorage.setItem("fbTokenExpiresAt", newExpiresAt);
             await Auth.federatedSignIn("facebook", {
               token: newToken,
               expires_at: newExpiresAt,
@@ -222,7 +223,7 @@ const User_login = () => {
 
           const fbExpiresAt = new Date().getTime() + expiresIn * 1000;
 
-          setFBToken(accessToken);
+          setFbToken(accessToken);
           setFbExpiresAt(fbExpiresAt);
 
           FB.api(
