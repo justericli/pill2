@@ -216,6 +216,11 @@ const User_login = () => {
             console.log("Good to see you, " + response.name + ".");
             statusChangeCallback(response);
             testAPI();
+
+            // Perform login logic here
+            if (fbToken && fbExpiresAt) {
+              getUserInfo();
+            }
           });
         } else {
           console.log("User cancelled login or did not fully authorize.");
