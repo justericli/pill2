@@ -31,20 +31,23 @@ Amplify.configure({
 });
 
 const User_login = () => {
-  let fbToken = "";
-  let fbExpiresAt = "";
+  const [fbToken, setFbToken] = useState("");
+  const [fbExpiresAt, setFbExpiresAt] = useState("");
+
   let fbLoginClicked = false; // Flag to track if Facebook login button was clicked
 
   const statusChangeCallback = (response) => {
     console.log("statusChangeCallback");
     console.log(response);
     if (response.status === "connected") {
-      fbToken = response.authResponse.accessToken; // Save the token
-      fbExpiresAt =
-        new Date().getTime() + response.authResponse.expiresIn * 1000; // Convert to timestamp
+      setFbToken(response.authResponse.accessToken); // Save the token
+      const expiresAt =
+        new Date().getTime() + response.authResponse.expiresIn * 1000;
+      setFbExpiresAt(expiresAt);
+      localStorage.setItem("fbTokenExpiresAt", expiresAt);
       getUserInfo();
       testAPI();
-      refreshAuthToken(); // Refresh the token in AWS Cognito session
+      refreshAuthToken(); // Refresh the token in AWS Cognito sessions
     } else {
       document.getElementById("status").innerHTML = "Please log into this app.";
     }
@@ -150,12 +153,14 @@ const User_login = () => {
             FB.getLoginStatus(resolve);
           });
           if (authResponse && authResponse.accessToken) {
-            fbToken = authResponse.accessToken;
-            fbExpiresAt = new Date().getTime() + authResponse.expiresIn * 1000;
-            localStorage.setItem("fbTokenExpiresAt", fbExpiresAt);
+            const newToken = authResponse.accessToken;
+            const newExpiresAt =
+              new Date().getTime() + authResponse.expiresIn * 1000;
+            setFbToken(newToken);
+            setFbExpiresAt(newExpiresAt);
             await Auth.federatedSignIn("facebook", {
-              token: fbToken,
-              expires_at: fbExpiresAt,
+              token: newToken,
+              expires_at: newExpiresAt,
             });
           }
         } catch (error) {
@@ -216,6 +221,9 @@ const User_login = () => {
           const { accessToken, expiresIn } = response.authResponse;
 
           const fbExpiresAt = new Date().getTime() + expiresIn * 1000;
+
+          setFBToken(accessToken);
+          setFbExpiresAt(fbExpiresAt);
 
           FB.api(
             "/me",
