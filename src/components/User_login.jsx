@@ -86,6 +86,8 @@ const User_login = () => {
           setEmail(email);
           setGivenName(first_name);
 
+          console.log(fbToken);
+
           await Auth.federatedSignIn(
             "facebook",
             { token: fbToken, expires_at: fbExpiresAt },
