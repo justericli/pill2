@@ -189,6 +189,7 @@ const User_login = () => {
 
     if (window.FB) {
       initializeFacebookLogin();
+      refreshAuthToken();
     }
 
     return () => {
