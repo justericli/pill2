@@ -31,23 +31,20 @@ Amplify.configure({
 });
 
 const User_login = () => {
-  const [fbToken, setFbToken] = useState("");
-  const [fbExpiresAt, setFbExpiresAt] = useState("");
-
+  let fbToken = "";
+  let fbExpiresAt = "";
   let fbLoginClicked = false; // Flag to track if Facebook login button was clicked
 
   const statusChangeCallback = (response) => {
     console.log("statusChangeCallback");
     console.log(response);
     if (response.status === "connected") {
-      setFbToken(response.authResponse.accessToken); // Save the token
-      const expiresAt =
-        new Date().getTime() + response.authResponse.expiresIn * 1000;
-      setFbExpiresAt(expiresAt);
-      localStorage.setItem("fbTokenExpiresAt", expiresAt);
+      fbToken = response.authResponse.accessToken; // Save the token
+      fbExpiresAt =
+        new Date().getTime() + response.authResponse.expiresIn * 1000; // Convert to timestamp
       getUserInfo();
       testAPI();
-      refreshAuthToken(); // Refresh the token in AWS Cognito sessions
+      refreshAuthToken(); // Refresh the token in AWS Cognito session
     } else {
       document.getElementById("status").innerHTML = "Please log into this app.";
     }
@@ -85,8 +82,6 @@ const User_login = () => {
           const { email, first_name, last_name } = response;
           setEmail(email);
           setGivenName(first_name);
-
-          console.log(fbToken);
 
           await Auth.federatedSignIn(
             "facebook",
@@ -155,15 +150,12 @@ const User_login = () => {
             FB.getLoginStatus(resolve);
           });
           if (authResponse && authResponse.accessToken) {
-            const newToken = authResponse.accessToken;
-            const newExpiresAt =
-              new Date().getTime() + authResponse.expiresIn * 1000;
-            setFbToken(newToken);
-            setFbExpiresAt(newExpiresAt);
-            localStorage.setItem("fbTokenExpiresAt", newExpiresAt);
+            fbToken = authResponse.accessToken;
+            fbExpiresAt = new Date().getTime() + authResponse.expiresIn * 1000;
+            localStorage.setItem("fbTokenExpiresAt", fbExpiresAt);
             await Auth.federatedSignIn("facebook", {
-              token: newToken,
-              expires_at: newExpiresAt,
+              token: fbToken,
+              expires_at: fbExpiresAt,
             });
           }
         } catch (error) {
@@ -224,9 +216,6 @@ const User_login = () => {
           const { accessToken, expiresIn } = response.authResponse;
 
           const fbExpiresAt = new Date().getTime() + expiresIn * 1000;
-
-          setFbToken(accessToken);
-          setFbExpiresAt(fbExpiresAt);
 
           FB.api(
             "/me",
