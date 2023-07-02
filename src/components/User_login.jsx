@@ -141,7 +141,10 @@ const User_login = () => {
   const refreshAuthToken = () => {
     setInterval(async () => {
       const tokenExpiresAt = localStorage.getItem("fbTokenExpiresAt");
-      if (new Date().getTime() > tokenExpiresAt) {
+      const currentTime = new Date().getTime();
+
+      // Refresh the token a few minutes before it actually expires
+      if (currentTime > tokenExpiresAt - 5 * 60 * 1000) {
         try {
           const { authResponse } = await new Promise((resolve, reject) => {
             FB.getLoginStatus(resolve);
