@@ -207,21 +207,44 @@ const User_login = () => {
   };
 
   const handleFBLogin = () => {
-    fbLoginClicked = true;
     FB.login(
-      (response) => {
+      async (response) => {
         if (response.authResponse) {
-          console.log("Welcome! Fetching your information...");
-          FB.api("/me", function (response) {
-            console.log("Good to see you, " + response.name + ".");
-            statusChangeCallback(response);
-            testAPI();
+          const { accessToken, expiresIn } = response.authResponse;
 
-            // Perform login logic here
-            if (fbToken && fbExpiresAt) {
-              getUserInfo();
+          const fbExpiresAt = new Date().getTime() + expiresIn * 1000;
+
+          FB.api(
+            "/me",
+            { fields: "id,first_name,last_name,email" },
+            async (response) => {
+              const { email, first_name, last_name } = response;
+              setEmail(email);
+              setGivenName(first_name);
+
+              try {
+                await Auth.federatedSignIn(
+                  "facebook",
+                  { token: accessToken, expires_at: fbExpiresAt },
+                  { email: email, name: first_name }
+                );
+
+                const currentUser = await Auth.currentAuthenticatedUser();
+                Auth.updateUserAttributes(currentUser, {
+                  email,
+                  given_name: first_name,
+                  family_name: last_name,
+                  gender: "male",
+                });
+                navigate("/User_dashboard");
+              } catch (error) {
+                console.error(
+                  "Failed to get user info or update user attributes: ",
+                  error
+                );
+              }
             }
-          });
+          );
         } else {
           console.log("User cancelled login or did not fully authorize.");
         }
@@ -234,6 +257,35 @@ const User_login = () => {
       }
     );
   };
+
+  // const handleFBLogin = () => {
+  //   fbLoginClicked = true;
+  //   FB.login(
+  //     (response) => {
+  //       if (response.authResponse) {
+  //         console.log("Welcome! Fetching your information...");
+  //         FB.api("/me", function (response) {
+  //           console.log("Good to see you, " + response.name + ".");
+  //           statusChangeCallback(response);
+  //           testAPI();
+
+  //           // Perform login logic here
+  //           if (fbToken && fbExpiresAt) {
+  //             getUserInfo();
+  //           }
+  //         });
+  //       } else {
+  //         console.log("User cancelled login or did not fully authorize.");
+  //       }
+  //     },
+  //     {
+  //       scope: "public_profile,email",
+  //       return_scopes: true,
+  //       auth_type: "rerequest",
+  //       nonce: generateNonce(), // Generate nonce for Facebook login
+  //     }
+  //   );
+  // };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
