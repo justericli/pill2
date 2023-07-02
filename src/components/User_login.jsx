@@ -196,6 +196,16 @@ const User_login = () => {
     };
   }, []);
 
+  const generateNonce = () => {
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let nonce = "";
+    for (let i = 0; i < 16; i++) {
+      nonce += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return nonce;
+  };
+
   const handleFBLogin = () => {
     fbLoginClicked = true;
     FB.login(
@@ -215,6 +225,7 @@ const User_login = () => {
         scope: "public_profile,email",
         return_scopes: true,
         auth_type: "rerequest",
+        nonce: generateNonce(), // Generate nonce for Facebook login
       }
     );
   };
@@ -252,8 +263,8 @@ const User_login = () => {
     script.defer = true;
     script.crossOrigin = "anonymous";
     script.src =
-      "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v15.0&appId=YOUR_APP_ID&autoLogAppEvents=1";
-    script.nonce = "YOUR_NONCE_VALUE";
+      "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v15.0&appId=730655258288890&autoLogAppEvents=1";
+    script.nonce = generateNonce(); // Generate nonce for Facebook SDK script tag
     document.body.appendChild(script);
 
     return () => {
