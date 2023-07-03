@@ -1,7 +1,8 @@
 /* global FB */
 
-import React, { useState, useEffect, useContext } from "react";
-import { createHashRouter, useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useContext, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { Auth } from "aws-amplify";
 import { AccountContext } from "./User_Account.jsx";
 import {
@@ -31,9 +32,26 @@ Amplify.configure({
 });
 
 const User_login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const { authenticate, setAuthenticated, logout } = useContext(AccountContext);
   let fbToken = "";
   let fbExpiresAt = "";
-  let fbLoginClicked = false; // Flag to track if Facebook login button was clicked
+
+  const checkUserExists = async (email) => {
+    // You should replace this with the actual API request or database query
+    // This is just a placeholder
+    const response = await axios.get(`/api/users?email=${email}`);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const user = response.data;
+
+    return user != null;
+  };
 
   const statusChangeCallback = useCallback(
     (response) => {
@@ -58,12 +76,6 @@ const User_login = () => {
     // Ensure the latest version of statusChangeCallback is used in the global scope
     window.statusChangeCallback = statusChangeCallback;
   }, [statusChangeCallback]);
-
-  const [email, setEmail] = useState("");
-  const navigate = useNavigate();
-  const { authenticate, setAuthenticated, logout } = useContext(AccountContext);
-  const [password, setPassword] = useState("");
-  const [givenName, setGivenName] = useState("");
 
   const UserPoolId = "us-east-1_zBOyMr7hs";
   const ClientId = "474p9bsq38phlbsk6rq0rak8d1";
@@ -90,13 +102,12 @@ const User_login = () => {
           console.log("User info response:", response);
           const { email, first_name, last_name } = response;
           setEmail(email);
-          setGivenName(first_name);
 
           const userExists = await checkUserExists(email);
 
           if (!userExists) {
             //Create a new user if they don't exist.
-            await createHashRouter(email, first_name, last_name);
+            await createUser(email, first_name, last_name);
           }
 
           await Auth.federatedSignIn(
@@ -134,9 +145,6 @@ const User_login = () => {
     shaObj.update(accessToken);
     return shaObj.getHMAC("HEX");
   };
-
-  window.statusChangeCallback = statusChangeCallback;
-  window.getUserInfo = getUserInfo;
 
   function testAPI() {
     console.log("Welcome! Fetching your information...");
@@ -197,7 +205,7 @@ const User_login = () => {
       FB.Event.subscribe("auth.statusChange", statusChangeCallback);
 
       FB.Event.subscribe("auth.logout", () => {
-        setGivenName("");
+        setEmail("");
       });
     };
 
@@ -240,7 +248,6 @@ const User_login = () => {
             async (response) => {
               const { email, first_name, last_name } = response;
               setEmail(email);
-              setGivenName(first_name);
 
               try {
                 await Auth.federatedSignIn(
@@ -280,6 +287,19 @@ const User_login = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    try {
+      // Make the API request to your API Gateway endpoint
+      const response = await axios.post(
+        "https://3tcdi7h273.execute-api.us-east-1.amazonaws.com/prod", // Replace with your API Gateway endpoint URL
+        { email } // Pass the email value to the API request body
+      );
+
+      // Handle the response from the API
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error:", error);
+    }
 
     const authenticationDetails = new AuthenticationDetails({
       Username: email,
