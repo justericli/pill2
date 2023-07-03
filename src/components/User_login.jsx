@@ -36,6 +36,7 @@ const User_login = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { authenticate, setAuthenticated, logout } = useContext(AccountContext);
+  const [fbLoginClicked, setFbLoginClicked] = useState(false);
   let fbToken = "";
   let fbExpiresAt = "";
 
@@ -235,6 +236,7 @@ const User_login = () => {
   };
 
   const handleFBLogin = () => {
+    setFbLoginClicked(true);
     FB.login(
       async (response) => {
         if (response.authResponse) {
