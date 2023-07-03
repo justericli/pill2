@@ -1,7 +1,7 @@
 /* global FB */
 
 import React, { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { createHashRouter, useNavigate } from "react-router-dom";
 import { Auth } from "aws-amplify";
 import { AccountContext } from "./User_Account.jsx";
 import {
@@ -35,20 +35,29 @@ const User_login = () => {
   let fbExpiresAt = "";
   let fbLoginClicked = false; // Flag to track if Facebook login button was clicked
 
-  const statusChangeCallback = (response) => {
-    console.log("statusChangeCallback");
-    console.log(response);
-    if (response.status === "connected") {
-      fbToken = response.authResponse.accessToken; // Save the token
-      fbExpiresAt =
-        new Date().getTime() + response.authResponse.expiresIn * 1000; // Convert to timestamp
-      getUserInfo();
-      testAPI();
-      refreshAuthToken(); // Refresh the token in AWS Cognito session
-    } else {
-      document.getElementById("status").innerHTML = "Please log into this app.";
-    }
-  };
+  const statusChangeCallback = useCallback(
+    (response) => {
+      console.log("statusChangeCallback");
+      console.log(response);
+      if (response.status === "connected") {
+        fbToken = response.authResponse.accessToken; // Save the token
+        fbExpiresAt =
+          new Date().getTime() + response.authResponse.expiresIn * 1000; // Convert to timestamp
+        getUserInfo();
+        testAPI();
+        refreshAuthToken(); // Refresh the token in AWS Cognito session
+      } else {
+        document.getElementById("status").innerHTML =
+          "Please log into this app.";
+      }
+    },
+    [setAuthenticated, authenticate]
+  );
+
+  useEffect(() => {
+    // Ensure the latest version of statusChangeCallback is used in the global scope
+    window.statusChangeCallback = statusChangeCallback;
+  }, [statusChangeCallback]);
 
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
@@ -82,6 +91,13 @@ const User_login = () => {
           const { email, first_name, last_name } = response;
           setEmail(email);
           setGivenName(first_name);
+
+          const userExists = await checkUserExists(email);
+
+          if (!userExists) {
+            //Create a new user if they don't exist.
+            await createHashRouter(email, first_name, last_name);
+          }
 
           await Auth.federatedSignIn(
             "facebook",
@@ -262,35 +278,6 @@ const User_login = () => {
     );
   };
 
-  // const handleFBLogin = () => {
-  //   fbLoginClicked = true;
-  //   FB.login(
-  //     (response) => {
-  //       if (response.authResponse) {
-  //         console.log("Welcome! Fetching your information...");
-  //         FB.api("/me", function (response) {
-  //           console.log("Good to see you, " + response.name + ".");
-  //           statusChangeCallback(response);
-  //           testAPI();
-
-  //           // Perform login logic here
-  //           if (fbToken && fbExpiresAt) {
-  //             getUserInfo();
-  //           }
-  //         });
-  //       } else {
-  //         console.log("User cancelled login or did not fully authorize.");
-  //       }
-  //     },
-  //     {
-  //       scope: "public_profile,email",
-  //       return_scopes: true,
-  //       auth_type: "rerequest",
-  //       nonce: generateNonce(), // Generate nonce for Facebook login
-  //     }
-  //   );
-  // };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -365,98 +352,3 @@ const User_login = () => {
 };
 
 export default User_login;
-
-//
-//
-//
-
-//
-//
-
-//
-
-//
-
-//
-
-//
-//import React, { useEffect, useState } from "react";
-// import { Amplify, Auth, Hub } from "aws-amplify";
-// import { CognitoHostedUIIdentityProvider } from "@aws-amplify/auth";
-// import awsConfig from "./aws-exports";
-
-// const updatedAwsConfig = {
-//   ...awsConfig,
-//   oauth: {
-//     ...awsConfig.oauth,
-//     domain: "joinwherologin.auth.us-east-1.amazoncognito.com",
-//     scope: ["email", "profile", "openid"],
-//     redirectSignIn: "http://www.joinwhero.com/User_dashboard",
-//     redirectSignOut: "http://www.joinwhero.com/User_login",
-//     responseType: "token",
-//     identityPoolId: "us-east-1:2db79836-c39c-426f-9aa5-1ed010e49e3c",
-//     region: "us-east-1",
-//     userPoolId: "us-east-1_zBOyMr7hs",
-//     userPoolWebClientId: "474p9bsq38phlbsk6rq0rak8d1",
-//   },
-// };
-
-// Amplify.configure(updatedAwsConfig);
-
-// function UserLogin() {
-//   const [user, setUser] = useState(null);
-
-//   useEffect(() => {
-//     const authListener = ({ payload: { event, data } }) => {
-//       switch (event) {
-//         case "signIn":
-//         case "cognitoHostedUI":
-//           getUser().then((userData) => setUser(userData));
-//           break;
-//         case "signOut":
-//           setUser(null);
-//           break;
-//         case "signIn_failure":
-//         case "cognitoHostedUI_failure":
-//           console.log("Sign in failure", data);
-//           break;
-//         default:
-//           break;
-//       }
-//     };
-
-//     Hub.listen("auth", authListener);
-
-//     Auth.currentAuthenticatedUser()
-//       .then((currentUser) => setUser(currentUser))
-//       .catch(() => console.log("Not signed in"));
-
-//     return () => {
-//       Hub.remove("auth", authListener);
-//     };
-//   }, []);
-
-//   const getUser = async () => {
-//     const currentUser = await Auth.currentAuthenticatedUser();
-//     return currentUser;
-//   };
-
-//   return (
-//     <div className="App">
-//       <button onClick={() => Auth.federatedSignIn()}>Open Hosted UI</button>
-//       <button
-//         onClick={() =>
-//           Auth.federatedSignIn({
-//             provider: CognitoHostedUIIdentityProvider.Facebook,
-//           })
-//         }
-//       >
-//         Open Facebook
-//       </button>
-//       <button onClick={() => Auth.signOut()}>Sign Out</button>
-//       <div>{user && user.getUsername()}</div>
-//     </div>
-//   );
-// }
-
-// export default UserLogin;
