@@ -41,8 +41,6 @@ const User_login = () => {
   let fbExpiresAt = "";
 
   const createUser = async (email, firstName, lastName) => {
-    // You would usually make a request to your API here.
-    // This is a placeholder implementation.
     const response = await axios.post(
       `https://3tcdi7h273.execute-api.us-east-1.amazonaws.com/prod`,
       {
@@ -52,7 +50,7 @@ const User_login = () => {
       }
     );
 
-    if (!response.ok) {
+    if (response.status !== 200) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
@@ -62,11 +60,9 @@ const User_login = () => {
   };
 
   const checkUserExists = async (email) => {
-    // You should replace this with the actual API request or database query
-    // This is just a placeholder
     const response = await axios.get(`/api/users?email=${email}`);
 
-    if (!response.ok) {
+    if (response.status !== 200) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
