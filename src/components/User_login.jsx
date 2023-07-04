@@ -184,7 +184,6 @@ const User_login = () => {
     setInterval(async () => {
       const tokenExpiresAt = localStorage.getItem("fbTokenExpiresAt");
       const currentTime = new Date().getTime();
-      console.log("refreshAuthToken is being called");
 
       // Refresh the token a few minutes before it actually expires
       if (currentTime > tokenExpiresAt - 5 * 60 * 1000) {
@@ -200,6 +199,7 @@ const User_login = () => {
               token: fbToken,
               expires_at: fbExpiresAt,
             });
+            console.log("Token has been refreshed.");
           }
         } catch (error) {
           console.error("Failed to refresh the token:", error);
