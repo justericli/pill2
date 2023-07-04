@@ -191,6 +191,7 @@ const User_login = () => {
           const { authResponse } = await new Promise((resolve, reject) => {
             FB.getLoginStatus(resolve);
           });
+          console.log("get login status");
           if (authResponse && authResponse.accessToken) {
             fbToken = authResponse.accessToken;
             fbExpiresAt = new Date().getTime() + authResponse.expiresIn * 1000;
@@ -200,6 +201,11 @@ const User_login = () => {
               expires_at: fbExpiresAt,
             });
             console.log("Token has been refreshed.");
+          } else {
+            console.log(
+              "authresponse or authresponse.accesstoken is undefined",
+              authResponse
+            );
           }
         } catch (error) {
           console.error("Failed to refresh the token:", error);
@@ -278,7 +284,6 @@ const User_login = () => {
                   { token: accessToken, expires_at: fbExpiresAt },
                   { email: email, name: first_name }
                 );
-
                 const currentUser = await Auth.currentAuthenticatedUser();
                 Auth.updateUserAttributes(currentUser, {
                   email,
@@ -288,6 +293,7 @@ const User_login = () => {
                 });
                 navigate("/User_dashboard");
               } catch (error) {
+                console.log("auth.federatedSignIn failed", error);
                 console.error(
                   "Failed to get user info or update user attributes: ",
                   error
