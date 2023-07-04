@@ -263,9 +263,11 @@ const User_login = () => {
   };
 
   const handleFBLogin = () => {
+    console.log("handleFBlogin was called.");
     setFbLoginClicked(true);
     FB.login(
       async (response) => {
+        console.log("FB.login response", response);
         if (response.authResponse) {
           const { accessToken, expiresIn } = response.authResponse;
 
@@ -383,7 +385,14 @@ const User_login = () => {
           value={password}
           onChange={(event) => setPassword(event.target.value)}
         ></input>
-        <button type="submit">Login</button>
+        <button
+          onClick={() => {
+            console.log("Button clicked");
+            handleFBLogin();
+          }}
+        >
+          Login with Facebook
+        </button>
       </form>
       <div
         className="fb-login-button"
