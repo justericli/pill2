@@ -93,7 +93,7 @@ const User_login = () => {
   useEffect(() => {
     // Ensure the latest version of statusChangeCallback is used in the global scope
     window.statusChangeCallback = statusChangeCallback;
-  }, [statusChangeCallback]);
+  }, [statusChangeCallback, refreshAuthToken]);
 
   const UserPoolId = "us-east-1_zBOyMr7hs";
   const ClientId = "474p9bsq38phlbsk6rq0rak8d1";
@@ -228,7 +228,10 @@ const User_login = () => {
       });
     };
 
-    window.fbAsyncInit = initializeFacebookLogin;
+    window.fbAsyncInit = () => {
+      initializeFacebookLogin();
+      refreshAuthToken();
+    };
 
     if (window.FB) {
       initializeFacebookLogin();
