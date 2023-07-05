@@ -262,30 +262,41 @@ const User_login = () => {
     return nonce;
   };
 
-  const handleFBLogin = () => {
-    console.log("handleFBlogin was called.");
+  const handleFBLogin = async () => {
+    console.log("handleFBLogin was called.");
     setFbLoginClicked(true);
-    FB.login(
-      async (response) => {
-        console.log("FB.login response", response);
-        if (response.authResponse) {
-          const { accessToken, expiresIn } = response.authResponse;
+    try {
+      const response = await new Promise((resolve, reject) => {
+        FB.login(resolve, { scope: "public_profile,email" });
+      });
+      if (response.authResponse) {
+        const { accessToken, expiresIn } = response.authResponse;
+        const fbExpiresAt = new Date().getTime() + expiresIn * 1000;
 
-          const fbExpiresAt = new Date().getTime() + expiresIn * 1000;
-
+        const getUserInfo = () => {
+          console.log("Getting user info");
           FB.api(
             "/me",
             { fields: "id,first_name,last_name,email" },
             async (response) => {
-              const { email, first_name, last_name } = response;
-              setEmail(email);
-
               try {
+                console.log("User info response:", response);
+                const { email, first_name, last_name } = response;
+                setEmail(email);
+
+                const userExists = await checkUserExists(email);
+
+                if (!userExists) {
+                  // Create a new user if they don't exist
+                  await createUser(email, first_name, last_name);
+                }
+
                 await Auth.federatedSignIn(
                   "facebook",
                   { token: accessToken, expires_at: fbExpiresAt },
                   { email: email, name: first_name }
                 );
+
                 const currentUser = await Auth.currentAuthenticatedUser();
                 Auth.updateUserAttributes(currentUser, {
                   email,
@@ -293,27 +304,30 @@ const User_login = () => {
                   family_name: last_name,
                   gender: "male",
                 });
+
                 navigate("/User_dashboard");
               } catch (error) {
-                console.log("auth.federatedSignIn failed", error);
                 console.error(
                   "Failed to get user info or update user attributes: ",
                   error
                 );
+                if (fbLoginClicked) {
+                  document.getElementById("status").innerHTML =
+                    "An unexpected error occurred. Please try again.";
+                }
               }
             }
           );
-        } else {
-          console.log("User cancelled login or did not fully authorize.");
-        }
-      },
-      {
-        scope: "public_profile,email",
-        return_scopes: true,
-        auth_type: "rerequest",
-        nonce: generateNonce(), // Generate nonce for Facebook login
+        };
+
+        // Call the getUserInfo function to retrieve user information
+        getUserInfo();
+      } else {
+        console.log("User cancelled login or did not fully authorize.");
       }
-    );
+    } catch (error) {
+      console.error("Failed to login with Facebook:", error);
+    }
   };
 
   const handleSubmit = async (event) => {
