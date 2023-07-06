@@ -225,6 +225,12 @@ const User_login = () => {
 
       FB.getLoginStatus((response) => {
         statusChangeCallback(response);
+        if (response.status == "connected") {
+          console.log(
+            "login successful accessToken granted:",
+            response.authResponse.accessToken
+          );
+        }
       });
 
       FB.Event.subscribe("auth.statusChange", statusChangeCallback);
@@ -262,7 +268,7 @@ const User_login = () => {
     return nonce;
   };
 
-  const handleFBLogin_1 = async () => {
+  const handleFBLogin = async () => {
     console.log("handleFBLogin was called.");
     setFbLoginClicked(true);
     try {
@@ -416,7 +422,7 @@ const User_login = () => {
         data-layout="default"
         data-auto-logout-link="false"
         data-use-continue-as="true"
-        onClick={handleFBLogin_1}
+        onClick={handleFBLogin}
       ></div>
       <div id="status"></div>
     </div>
