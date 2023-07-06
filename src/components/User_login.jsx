@@ -262,7 +262,7 @@ const User_login = () => {
     return nonce;
   };
 
-  const handleFBLogin = async () => {
+  const handleFBLogin_1 = async () => {
     console.log("handleFBLogin was called.");
     setFbLoginClicked(true);
     try {
@@ -416,7 +416,7 @@ const User_login = () => {
         data-layout="default"
         data-auto-logout-link="false"
         data-use-continue-as="true"
-        onClick={handleFBLogin}
+        onClick={handleFBLogin_1}
       ></div>
       <div id="status"></div>
     </div>
