@@ -39,6 +39,7 @@ const User_dashboard = () => {
       Hi, {givenName}
       <button onClick={handleLogout}>Logout</button>{" "}
       {/* Button to trigger logout */}
+      <button>Add friends</button>
     </div>
   );
 };

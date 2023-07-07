@@ -405,6 +405,7 @@ const User_login = () => {
           value={password}
           onChange={(event) => setPassword(event.target.value)}
         ></input>
+        <button type="submit">Login</button>
         <button
           onClick={() => {
             console.log("Button clicked");
