@@ -1,0 +1,38 @@
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    overflow: auto;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 60%;
+    max-width: 800px;
+}
+
+.modal h2 {
+    text-align: center;
+}
+
+.modal-body {
+    margin-top: 20px;
+}
+
+.modal-footer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+button#addFriendsButton {
+    display: block;
+    margin: 20px auto;
+}
