@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import UserPool from "../User_Userpool.jsx"; // adjust the import path to where your User_Userpool.jsx file is located
 import { Auth } from "aws-amplify";
+import { useNavigate } from "react-router-dom";
 import "./User_dashboard.css";
 
 const User_dashboard = () => {
   const [givenName, setGivenName] = useState("");
   const [users, setUsers] = useState([]);
+  const navigate = useNavigate(); // Add this line to initialize the navigate function
 
   const fetchUsers = async () => {
     try {
@@ -36,6 +38,7 @@ const User_dashboard = () => {
   async function handleLogout() {
     // Clear the user's session
     await Auth.signOut({ global: true });
+    navigate("/User_login");
 
     if (window.FB) {
       window.FB.logout();
