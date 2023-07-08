@@ -47,6 +47,7 @@ const User_dashboard = () => {
 
   useEffect(() => {
     fetchUsers();
+
     // Get DOM elements
     const addFriendsButton = document.getElementById("addFriendsButton");
     const modal = document.getElementById("modal");
@@ -84,7 +85,11 @@ const User_dashboard = () => {
             </div>
             <div id="friendsSection">
               <h3>Friends</h3>
-              {/* Place friends here */}
+              {users.map((user) => (
+                <div key={user.username}>
+                  {user.username} <button>Add Friend</button>
+                </div>
+              ))}
             </div>
           </div>
           <div className="modal-footer">
