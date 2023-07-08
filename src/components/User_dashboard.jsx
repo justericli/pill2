@@ -5,6 +5,16 @@ import "./User_dashboard.css";
 
 const User_dashboard = () => {
   const [givenName, setGivenName] = useState("");
+  const [users, setUsers] = useState([]);
+
+  const fetchUsers = async () => {
+    try {
+      const userPoolUsers = await UserPool.listUsers(); // Adjust the method according to your UserPool API
+      setUsers(userPoolUsers);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
 
   useEffect(() => {
     const cognitoUser = UserPool.getCurrentUser();
@@ -33,6 +43,7 @@ const User_dashboard = () => {
   }
 
   useEffect(() => {
+    fetchUsers();
     // Get DOM elements
     const addFriendsButton = document.getElementById("addFriendsButton");
     const modal = document.getElementById("modal");
