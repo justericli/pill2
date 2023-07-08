@@ -51,6 +51,11 @@ const User_dashboard = () => {
 
   return (
     <div>
+      <div>
+        Hi, {givenName}
+        <button onClick={handleLogout}>Logout</button>{" "}
+        {/* Button to trigger logout */}
+      </div>
       <button id="addFriendsButton">Add Friends</button>
 
       <div id="modal" className="modal">
